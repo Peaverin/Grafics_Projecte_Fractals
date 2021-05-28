@@ -23,3 +23,7 @@ A continuació, links a tots els recursos utilitzats/consultats durant l'elabora
 - Script per moure la càmera:
 
   https://forum.unity.com/threads/fly-cam-simple-cam-script.67042/
+
+- Transformacions geometriques raymarching:
+
+  http://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/#constructive-solid-geometry
