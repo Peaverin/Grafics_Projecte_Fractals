@@ -68,15 +68,15 @@ Shader "PeerPlay/Raymarching"
 			float mod(float p, float factor) {
 				return p - factor * floor(p / factor);
 			}
-			
+
 			float2 mod2(float2 p, float2 factor) {
 				return float2(mod(p.x, factor.x), mod(p.y, factor.y));
 			}
-			
+
 			float3 mod3(float3 p, float3 factor) {
 				return float3(mod(p.x, factor.x), mod(p.y, factor.y), mod(p.z, factor.z));
 			}
-			
+
 			///
 			//FUNCIONS PER "DOBLEGAR" EL PLA (idea de https://www.shadertoy.com/view/MsBGW1) 
 			float3 repeatXZ(float3 p, float2 factor)
@@ -89,7 +89,7 @@ Shader "PeerPlay/Raymarching"
 				float3 tmp = mod3(p, factor) - 0.5*factor;
 				return float3(tmp.x, tmp.y, tmp.z);
 			}
-			
+
 			//// TRANSFORMACIONS GEOMÈTRIQUES (http://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/#constructive-solid-geometry)
 			float intersectSDF(float distA, float distB) {
 				return max(distA, distB);
@@ -105,7 +105,7 @@ Shader "PeerPlay/Raymarching"
 
 			float fold(float p, float n) { // Dopleguem pel pla amb normal n. http://blog.hvidtfeldts.net/index.php/2011/08/distance-estimated-3d-fractals-iii-folding-space/
 				//float t = dot(z,n1); if (t<0.0) { z-=2.0*t*n1; }// versió inicial
-				p-=2.0 * min(0.0, dot(p, n)) * n; //versió optimitzada
+				p -= 2.0 * min(0.0, dot(p, n)) * n; //versió optimitzada
 			}
 			/////
 
@@ -189,9 +189,9 @@ Shader "PeerPlay/Raymarching"
 				float Offset = _fractalOffset;
 
 				while (n < _fractalIterations) {
-					if (p.x + p.y<0) p.xy = -p.yx; // fold 1
-					if (p.x + p.z<0) p.xz = -p.zx; // fold 2
-					if (p.y + p.z<0) p.zy = -p.yz; // fold 3	
+					if (p.x + p.y < 0) p.xy = -p.yx; // fold 1
+					if (p.x + p.z < 0) p.xz = -p.zx; // fold 2
+					if (p.y + p.z < 0) p.zy = -p.yz; // fold 3	
 					p = p * Scale - Offset * (Scale - 1.0);
 					n++;
 				}
@@ -210,7 +210,7 @@ Shader "PeerPlay/Raymarching"
 				float r = 0.0;
 				for (int i = 0; i < Iterations; i++) {
 					r = length(z);
-					if (r>Bailout) break;
+					if (r > Bailout) break;
 
 					// convert to polar coordinates
 					float theta = acos(z.z / r);
@@ -249,7 +249,7 @@ Shader "PeerPlay/Raymarching"
 			}
 
 			//Esferes amb "forats" a dins fets per capses
-			float scene1(float3 p) { 
+			float scene1(float3 p) {
 				p = repeatXYZ(p, float3(5.0, 5.0, 5.0));
 				float boxes1 = sdBox(p, float3(0.0, 0.0, 0.0), float3(1.0, 1.0, 2.52));
 				float boxes2 = sdBox(p, float3(0.0, 0.0, 0.0), float3(2.52, 1.0, 1.0));
@@ -269,6 +269,7 @@ Shader "PeerPlay/Raymarching"
 				p = repeatXZ(p, float2(2.0, 2.0));
 				return sdSphere(p, float3(0.0, 0.0, 0.0), 1.4);
 			}
+
 			//
 
 			/**********************************************FUNCIONS PRINCIPAL************************************************/
@@ -289,6 +290,9 @@ Shader "PeerPlay/Raymarching"
 					break;
 				case 5:
 					scene = scene3(p);
+					break;
+				case 6:
+					scene = scene1(p);
 					break;
 				default:
 					scene = mandelbulbDE(p);
@@ -314,13 +318,13 @@ Shader "PeerPlay/Raymarching"
 				return fixed4(ray_origin, 1);
 			}
 
-			fixed4 getColor(float3 p, float3 ray_origin, float3 ray_direction) {
+			fixed4 getColor(float3 p, float3 ray_origin, float3 ray_direction, int t, int MAX_ITERATIONS) {
 				fixed4 color;
 				if (_currentScene == 3 && abs(p.x - 2.5) < 2.5 && abs(p.y - 2.5) < 2.5 && abs(p.z -2.5) < 2.5) {
 					color = fixed4(1, 0, 0, 1);
 				}
 				else {
-					color = fixed4(1, 1, 1, 1);
+					color = fixed4(ray_direction, 1);
 				}
 				return color;
 			}
@@ -329,7 +333,7 @@ Shader "PeerPlay/Raymarching"
 			{
 				fixed4 result = fixed4(1, 1, 1, 1);
 
-				const int MAX_ITERATIONS = 128; //Max iterations del ray marching TODO: posar com a variable (potser no cal)
+				const int MAX_ITERATIONS = 200; //Max iterations del ray marching TODO: posar com a variable (potser no cal)
 
 				float t = 0; //Distancia viatjada al llarg de la direcció del raig
 
@@ -344,10 +348,10 @@ Shader "PeerPlay/Raymarching"
 															   //mirem si hi ha hit en el distance field (dist < epsilon)
 
 					float dist = distanceField(p);
-					if (dist < 0.001) {
+					if (dist < 0.01) {
 						float3 normal = getNormal(p);
 						float light = dot(-_LightDir, normal);//Lights (si s'expandeix, fer funció a part millor)
-						fixed4 color = getColor(p, ray_origin, ray_direction);
+						fixed4 color = getColor(p, ray_origin, ray_direction, t, MAX_ITERATIONS);
 						result = color * light; //Aquí es determina el color final
 						break;
 					}
