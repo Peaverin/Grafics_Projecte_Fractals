@@ -1,0 +1,25 @@
+# Fractal Explorer
+Projecte del grup f01 de l'assignatura de Gràfics i Visualització de Dades de la Universitat de Barcelona.
+
+## Recursos utilitzats
+A continuació, links a tots els recursos utilitzats/consultats durant l'elaboració d'aquest projecte.
+
+- Tutorials per setejar raymarching en Unity, utilitzant la càmara de unity pròpia afegint un pla en el seu render:
+  
+  https://www.youtube.com/watch?v=82iBWIycU0o
+
+- Raymarching, doblegació plà, fractals mandelbulb, tetrahedron, mandelbox...
+
+  http://blog.hvidtfeldts.net/index.php/2011/06/distance-estimated-3d-fractals-part-i/
+  
+- Signed distance functions for primitives:
+
+  https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+  
+- Exemple doblegació del pla raymarching:
+
+  https://www.shadertoy.com/view/MsBGW1
+  
+- Script per moure la càmera:
+
+  https://forum.unity.com/threads/fly-cam-simple-cam-script.67042/
