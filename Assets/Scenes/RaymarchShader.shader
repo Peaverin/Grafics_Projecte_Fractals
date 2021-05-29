@@ -20,13 +20,16 @@ Shader "PeerPlay/Raymarching"
 			/********DADES ENVIADES DE CPU********/
 			sampler2D _MainTex;
 			uniform float4x4 _CamFrustum, _CamToWorld; //Cam Frustrum: 4 direccions (les 4 esquines de la pantalla)
-			uniform float _maxDistance; //Distància màxima a partir de la qual deixem de calcular el rayMarching
+			uniform float _maxDistance; //Distï¿½ncia mï¿½xima a partir de la qual deixem de calcular el rayMarching
 			uniform float3 _LightDir;
 			//COSES MENUS:
 			uniform float _fractalPower;
 			uniform float _fractalScapeRatio;
 			uniform int _fractalIterations;
 			uniform float _fractalScale;
+			uniform float _foldingLimit;
+			uniform float _minRadius;
+			uniform float _fixedRadius;
 			uniform float _fractalOffset;
 			uniform int _currentScene;
 
@@ -90,7 +93,7 @@ Shader "PeerPlay/Raymarching"
 				return float3(tmp.x, tmp.y, tmp.z);
 			}
 
-			//// TRANSFORMACIONS GEOMÈTRIQUES (http://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/#constructive-solid-geometry)
+			//// TRANSFORMACIONS GEOMï¿½TRIQUES (http://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/#constructive-solid-geometry)
 			float intersectSDF(float distA, float distB) {
 				return max(distA, distB);
 			}
@@ -104,12 +107,12 @@ Shader "PeerPlay/Raymarching"
 			}
 
 			float fold(float p, float n) { // Dopleguem pel pla amb normal n. http://blog.hvidtfeldts.net/index.php/2011/08/distance-estimated-3d-fractals-iii-folding-space/
-				//float t = dot(z,n1); if (t<0.0) { z-=2.0*t*n1; }// versió inicial
-				p -= 2.0 * min(0.0, dot(p, n)) * n; //versió optimitzada
+				//float t = dot(z,n1); if (t<0.0) { z-=2.0*t*n1; }// versiï¿½ inicial
+				p -= 2.0 * min(0.0, dot(p, n)) * n; //versiï¿½ optimitzada
 			}
 			/////
 
-			//SIGNED PRIMITIVES. Trobar més a https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+			//SIGNED PRIMITIVES. Trobar mï¿½s a https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
 			//SPHERE
 			float sdSphere(float3 p, float3 pos,float radius) // p: current point, pos: sphere pos
 			{
@@ -158,7 +161,7 @@ Shader "PeerPlay/Raymarching"
 				return length(p) * pow(Scale, float(-n));
 			}
 
-			float tetrahedronFractalDE_mod1(float3 p) //Modificat per poder després doblegar el pla (intento)
+			float tetrahedronFractalDE_mod1(float3 p) //Modificat per poder desprï¿½s doblegar el pla (intento)
 			{
 				float Scale = _fractalScale;
 				float3 a1 = float3(2, 2, 2);
@@ -228,6 +231,54 @@ Shader "PeerPlay/Raymarching"
 				}
 				return 0.5*log(r)*r / dr;
 			}
+
+			float mandelboxDE(float3 pos) { //http://blog.hvidtfeldts.net/index.php/2011/11/distance-estimated-3d-fractals-vi-the-mandelbox/
+				int Iterations = _fractalIterations;
+				float foldingLimit = _foldingLimit;
+				
+
+				float fixedRadius = _fixedRadius;
+				float minRadius = _minRadius;
+				float fixedRadius2 = fixedRadius*fixedRadius;
+				float minRadius2 = minRadius*minRadius;
+				float3 z = pos;
+				float3 offset = z;
+				float dr = 1.0;
+				for (int n = 0; n < Iterations; n++) {
+					// Reflect
+					z.x = clamp(z.x, -foldingLimit, foldingLimit) * 2.0 - z.x;
+					z.y = clamp(z.y, -foldingLimit, foldingLimit) * 2.0 - z.y;
+					z.z = clamp(z.z, -foldingLimit, foldingLimit) * 2.0 - z.z;
+
+					float r2 = dot(z,z);
+					float temp = 1.0;
+					if (r2<minRadius2) { 
+						// linear inner scaling
+						temp = (fixedRadius2/minRadius2);
+					} else if (r2<fixedRadius2) { 
+						// this is the actual sphere inversion
+						temp =(fixedRadius2/r2);
+					}
+					z *= temp;
+					dr*= temp;
+					
+					z=Scale*z + offset;  // Scale & Translate
+					dr = dr*abs(Scale)+1.0;
+				}
+				float r = length(z);
+				return r/abs(dr);
+			}
+
+			float clamp (float z, float minLim, float maxLim) {
+				if (z > maxLim){
+					return 1;
+				} else if (z < minLim) {
+					return -1;
+				} else {
+					return 0;
+				}
+			}
+
 			//
 
 			//ESCENES (combinacions de SD/DE)
@@ -294,15 +345,18 @@ Shader "PeerPlay/Raymarching"
 				case 6:
 					scene = scene1(p);
 					break;
-				default:
+				case 7:
 					scene = mandelbulbDE(p);
+					break;
+				default:
+					scene = mandelboxDE(p);
 					break;
 				}
 				return scene;
 			}
 
-			float3 getNormal(float3 p) { //Càlcul normal
-				//La gradient del distanceField / distanceEstimator és la normal en aquell punt
+			float3 getNormal(float3 p) { //Cï¿½lcul normal
+				//La gradient del distanceField / distanceEstimator ï¿½s la normal en aquell punt
 				const float2 offset = float2(0.001, 0.0);
 
 				float3 normal = float3(  //ofset.xyy = (ofset.x, ofset.y, ofset.y)
@@ -314,7 +368,7 @@ Shader "PeerPlay/Raymarching"
 			}
 
 			fixed4 getBackgroundColor(float3 ray_origin,float3 ray_direction) {
-				//idea: fer intersecció del raig amb un pla llunyà per poder fer fons fractal 2D? o altre tipus
+				//idea: fer intersecciï¿½ del raig amb un pla llunyï¿½ per poder fer fons fractal 2D? o altre tipus
 				return fixed4(ray_origin, 1);
 			}
 
@@ -335,11 +389,11 @@ Shader "PeerPlay/Raymarching"
 
 				const int MAX_ITERATIONS = 200; //Max iterations del ray marching TODO: posar com a variable (potser no cal)
 
-				float t = 0; //Distancia viatjada al llarg de la direcció del raig
+				float t = 0; //Distancia viatjada al llarg de la direcciï¿½ del raig
 
 				for (int i = 0; i < MAX_ITERATIONS; i++) {
 					if (t > _maxDistance) {
-						//Pîntem el fons
+						//Pï¿½ntem el fons
 						result = getBackgroundColor(ray_origin, ray_direction);
 						break;
 					}
@@ -350,9 +404,9 @@ Shader "PeerPlay/Raymarching"
 					float dist = distanceField(p);
 					if (dist < 0.01) {
 						float3 normal = getNormal(p);
-						float light = dot(-_LightDir, normal);//Lights (si s'expandeix, fer funció a part millor)
+						float light = dot(-_LightDir, normal);//Lights (si s'expandeix, fer funciï¿½ a part millor)
 						fixed4 color = getColor(p, ray_origin, ray_direction, t, MAX_ITERATIONS);
-						result = color * light; //Aquí es determina el color final
+						result = color * light; //Aquï¿½ es determina el color final
 						break;
 					}
 

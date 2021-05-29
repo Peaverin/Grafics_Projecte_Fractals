@@ -16,6 +16,12 @@ public class RaymarchCamera : MonoBehaviour
     int _fractalIterations;
     [SerializeField, Range(0.01F, 10.0F)]
     float _fractalScale;
+    [SerializeField, Range(0.01F, 2.0F)]
+    float _foldingLimit;
+    [SerializeField, Range(0.001F, 1.000F)]
+    float _minRadius;
+    [SerializeField, Range(0.500F, 5.000F)]
+    float _fixedRadius;
     [SerializeField, Range(1, 50)]
     int _fractalOffset;
     [SerializeField, Range(1, 300)]
@@ -61,6 +67,9 @@ public class RaymarchCamera : MonoBehaviour
         _rayMarchmaterial.SetFloat("_fractalScapeRatio", _fractalScapeRatio);
         _rayMarchmaterial.SetInt("_fractalIterations", _fractalIterations);
         _rayMarchmaterial.SetFloat("_fractalScale", _fractalScale);
+        _rayMarchmaterial.SetFloat("_foldingLimit", _foldingLimit);
+        _rayMarchmaterial.SetFloat("_minRadius", _minRadius);
+        _rayMarchmaterial.SetFloat("_fixedRadius", _fixedRadius);
         _rayMarchmaterial.SetInt("_fractalOffset", _fractalOffset);
         _rayMarchmaterial.SetInt("_currentScene", _currentScene);
         //
