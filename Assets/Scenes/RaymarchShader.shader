@@ -126,6 +126,7 @@ Shader "PeerPlay/Raymarching"
 				return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
 			}
 
+
 			//BOX FRAME
 			float sdBoxFrame(float3 p, float3 pos, float3 b, float e) //p: current point. pos: box position b: dimensions. e : amplada costats
 			{
@@ -232,7 +233,31 @@ Shader "PeerPlay/Raymarching"
 				return 0.5*log(r)*r / dr;
 			}
 
-			float mandelboxDE(float3 pos) { //http://blog.hvidtfeldts.net/index.php/2011/11/distance-estimated-3d-fractals-vi-the-mandelbox/
+			float mengerSpongeDE(float3 p) { // https://www.iquilezles.org/www/articles/menger/menger.htm
+				int Iterations = _fractalIterations;
+				float Scale = _fractalScale;
+
+				float d = sdBox(p, float3(0.0,0.0,0.0), float3(1.0, 1.0, 1.0) * Scale);
+
+				float s = 1.0;
+				for (int m = 0; m<_fractalIterations; m++)
+				{
+					float3 a = mod3(p*s, float3(2.0, 2.0, 2.0)) - 1.0;
+					s *= 3.0;
+					float3 r = abs(1.0 - 3.0*abs(a));
+
+					float da = max(r.x, r.y);
+					float db = max(r.y, r.z);
+					float dc = max(r.z, r.x);
+					float c = (min(da, min(db, dc)) - 1.0) / s;
+
+					d = max(d, c);
+				}
+
+				return d;
+			}
+
+			float mandelboxDE(float3 p) { //http://blog.hvidtfeldts.net/index.php/2011/11/distance-estimated-3d-fractals-vi-the-mandelbox/
 				int Iterations = _fractalIterations;
 				float foldingLimit = _foldingLimit;
 				float Scale = _fractalScale;
@@ -241,7 +266,7 @@ Shader "PeerPlay/Raymarching"
 				float minRadius = _minRadius;
 				float fixedRadius2 = fixedRadius*fixedRadius;
 				float minRadius2 = minRadius*minRadius;
-				float3 z = pos;
+				float3 z = p;
 				float3 offset = z;
 				float dr = 1.0;
 				for (int n = 0; n < Iterations; n++) {
@@ -346,6 +371,9 @@ Shader "PeerPlay/Raymarching"
 					scene = scene1(p);
 					break;
 				case 7:
+					scene = mengerSpongeDE(p);
+					break;
+				case 8:
 					scene = mandelbulbDE(p);
 					break;
 				default:
@@ -357,7 +385,7 @@ Shader "PeerPlay/Raymarching"
 
 			float3 getNormal(float3 p) { //C�lcul normal
 				//La gradient del distanceField / distanceEstimator �s la normal en aquell punt
-				const float2 offset = float2(0.01, 0.0);
+				const float2 offset = float2(0.001, 0.0);
 
 				float3 normal = float3(  //ofset.xyy = (ofset.x, ofset.y, ofset.y)
 					distanceField(p + offset.xyy) - distanceField(p - offset.xyy),
@@ -369,7 +397,12 @@ Shader "PeerPlay/Raymarching"
 
 			fixed4 getBackgroundColor(float3 ray_origin,float3 ray_direction) {
 				//idea: fer intersecci� del raig amb un pla lluny� per poder fer fons fractal 2D? o altre tipus
-				return fixed4(float3(0.3,0.0,0.0), 1);
+				float3 color1 = float3(0.5, 0.7, 1);
+				float3 color2 = float3(1, 1, 1);
+				// TODO: A canviar el càlcul del color en les diferents fases
+				float y = 0.5*(ray_direction.y + 1);
+				float3 color = (float)y*color1 + (float)(1 - y)*color2;
+				return fixed4(color.x, color.y, color.z, 1.0);
 			}
 
 			fixed4 getColor(float3 p, float3 ray_origin, float3 ray_direction, int t) {
