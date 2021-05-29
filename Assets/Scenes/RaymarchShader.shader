@@ -32,7 +32,7 @@ Shader "PeerPlay/Raymarching"
 			uniform float _fixedRadius;
 			uniform float _fractalOffset;
 			uniform int _currentScene;
-
+			uniform int _numIterations;
 			struct appdata
 			{
 				float4 vertex : POSITION;
@@ -235,7 +235,7 @@ Shader "PeerPlay/Raymarching"
 			float mandelboxDE(float3 pos) { //http://blog.hvidtfeldts.net/index.php/2011/11/distance-estimated-3d-fractals-vi-the-mandelbox/
 				int Iterations = _fractalIterations;
 				float foldingLimit = _foldingLimit;
-				
+				float Scale = _fractalScale;
 
 				float fixedRadius = _fixedRadius;
 				float minRadius = _minRadius;
@@ -357,7 +357,7 @@ Shader "PeerPlay/Raymarching"
 
 			float3 getNormal(float3 p) { //C�lcul normal
 				//La gradient del distanceField / distanceEstimator �s la normal en aquell punt
-				const float2 offset = float2(0.001, 0.0);
+				const float2 offset = float2(0.01, 0.0);
 
 				float3 normal = float3(  //ofset.xyy = (ofset.x, ofset.y, ofset.y)
 					distanceField(p + offset.xyy) - distanceField(p - offset.xyy),
@@ -369,10 +369,10 @@ Shader "PeerPlay/Raymarching"
 
 			fixed4 getBackgroundColor(float3 ray_origin,float3 ray_direction) {
 				//idea: fer intersecci� del raig amb un pla lluny� per poder fer fons fractal 2D? o altre tipus
-				return fixed4(ray_origin, 1);
+				return fixed4(float3(0.3,0.0,0.0), 1);
 			}
 
-			fixed4 getColor(float3 p, float3 ray_origin, float3 ray_direction, int t, int MAX_ITERATIONS) {
+			fixed4 getColor(float3 p, float3 ray_origin, float3 ray_direction, int t) {
 				fixed4 color;
 				if (_currentScene == 3 && abs(p.x - 2.5) < 2.5 && abs(p.y - 2.5) < 2.5 && abs(p.z -2.5) < 2.5) {
 					color = fixed4(1, 0, 0, 1);
@@ -387,11 +387,9 @@ Shader "PeerPlay/Raymarching"
 			{
 				fixed4 result = fixed4(1, 1, 1, 1);
 
-				const int MAX_ITERATIONS = 200; //Max iterations del ray marching TODO: posar com a variable (potser no cal)
-
 				float t = 0; //Distancia viatjada al llarg de la direcci� del raig
 
-				for (int i = 0; i < MAX_ITERATIONS; i++) {
+				for (int i = 0; i < _numIterations; i++) {
 					if (t > _maxDistance) {
 						//P�ntem el fons
 						result = getBackgroundColor(ray_origin, ray_direction);
@@ -405,7 +403,7 @@ Shader "PeerPlay/Raymarching"
 					if (dist < 0.01) {
 						float3 normal = getNormal(p);
 						float light = dot(-_LightDir, normal);//Lights (si s'expandeix, fer funci� a part millor)
-						fixed4 color = getColor(p, ray_origin, ray_direction, t, MAX_ITERATIONS);
+						fixed4 color = getColor(p, ray_origin, ray_direction, t);
 						result = color * light; //Aqu� es determina el color final
 						break;
 					}

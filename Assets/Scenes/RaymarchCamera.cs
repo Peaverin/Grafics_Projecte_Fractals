@@ -12,7 +12,7 @@ public class RaymarchCamera : MonoBehaviour
     float _fractalPower;
     [SerializeField, Range(0.01F, 20.0F)]
     float _fractalScapeRatio;
-    [SerializeField, Range(1, 50)]
+    [SerializeField, Range(1, 150)]
     int _fractalIterations;
     [SerializeField, Range(0.01F, 10.0F)]
     float _fractalScale;
@@ -20,11 +20,11 @@ public class RaymarchCamera : MonoBehaviour
     float _foldingLimit;
     [SerializeField, Range(0.001F, 1.000F)]
     float _minRadius;
-    [SerializeField, Range(0.500F, 5.000F)]
+    [SerializeField, Range(0.500F, 10.000F)]
     float _fixedRadius;
     [SerializeField, Range(1, 50)]
     int _fractalOffset;
-    [SerializeField, Range(1, 300)]
+    [SerializeField, Range(1, 3000)]
     int _numIterations;
     //https://www.youtube.com/watch?v=82iBWIycU0o
     [SerializeField]
@@ -77,7 +77,7 @@ public class RaymarchCamera : MonoBehaviour
         _rayMarchmaterial.SetMatrix("_CamFrustum", CamFrustum(_camera));
         _rayMarchmaterial.SetMatrix("_CamToWorld", _camera.cameraToWorldMatrix);
         _rayMarchmaterial.SetFloat("_maxDistance", _maxDistance);
-
+        _rayMarchmaterial.SetFloat("_numIterations", _numIterations);
         RenderTexture.active = destination;
         GL.PushMatrix();
         GL.LoadOrtho();
