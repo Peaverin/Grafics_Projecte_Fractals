@@ -16,6 +16,10 @@ A continuació, links a tots els recursos utilitzats/consultats durant l'elabora
 
   https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
   
+- Menger Sponge explanation:
+
+  https://www.iquilezles.org/www/articles/menger/menger.htm
+  
 - Exemple doblegació del pla raymarching:
 
   https://www.shadertoy.com/view/MsBGW1
@@ -29,7 +33,8 @@ A continuació, links a tots els recursos utilitzats/consultats durant l'elabora
   http://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/#constructive-solid-geometry
   
   
-  ## Recursos a mirar
-  https://github.com/buddhi1980/mandelbulber_doc/releases/tag/2.24.0
-  
-  https://github.com/buddhi1980/mandelbulber2
+- Programa mandelbulber + documentació amb informació útil raymarching, errors floating point, tipus de fractals, alguns codis...
+
+    https://github.com/buddhi1980/mandelbulber2
+    
+    https://github.com/buddhi1980/mandelbulber_doc/releases/tag/2.24.0
