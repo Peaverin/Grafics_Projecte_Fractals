@@ -42,3 +42,5 @@ A continuació, links a tots els recursos utilitzats/consultats durant l'elabora
 ## Recursos a consultar:
 
 Pintar fractal amb orbit trap https://iquilezles.org/www/articles/mandelbulb/mandelbulb.htm
+
+Soft shadow + penumbra for free: https://iquilezles.org/www/articles/rmshadows/rmshadows.htm
