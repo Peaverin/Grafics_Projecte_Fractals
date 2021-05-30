@@ -23,21 +23,32 @@ public class FlyCamera : MonoBehaviour
     float camSens = 0.01f; //How sensitive it with mouse
     private Vector3 lastMouse = new Vector3(255, 255, 255); //kind of in the middle of the screen, rather than at the top (play)
     private float totalRun = 1.0f;
+    private float rotX;
+    public float turnSpeed = 4.0f;
+    public float moveSpeed = 2.0f;
 
+    public float minTurnAngle = -90.0f;
+    public float maxTurnAngle = 90.0f;
     public void Reset()
     {
         transform.position = new Vector3(-1, -1, -5);
         transform.rotation = Quaternion.Euler(0, 0, 0);
     }
+    void MouseAiming()
+    {
+        // get the mouse inputs
+        float y = Input.GetAxis("Mouse X") * turnSpeed;
+        rotX += Input.GetAxis("Mouse Y") * turnSpeed;
 
+        // clamp the vertical rotation
+        rotX = Mathf.Clamp(rotX, minTurnAngle, maxTurnAngle);
+
+        // rotate the camera
+        transform.eulerAngles = new Vector3(-rotX, transform.eulerAngles.y + y, 0);
+    }
     void Update()
     {
-        lastMouse = Input.mousePosition - lastMouse;
-        lastMouse = new Vector3(-lastMouse.y * camSens, lastMouse.x * camSens, 0);
-        lastMouse = new Vector3(transform.eulerAngles.x + lastMouse.x, transform.eulerAngles.y + lastMouse.y, 0);
-        transform.eulerAngles = lastMouse;
-        lastMouse = Input.mousePosition;
-        //Mouse  camera angle done.  
+        MouseAiming();
 
         //Keyboard commands
         float f = 0.0f;
