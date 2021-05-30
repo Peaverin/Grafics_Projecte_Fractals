@@ -8,6 +8,5 @@ public class SceneButton : MonoBehaviour
 
     public void OnClick() {
         GameObject.FindObjectOfType<RaymarchCamera>()._currentScene = scene;
-        GameObject.FindObjectOfType<FlyCamera>().Reset();
     }
 }

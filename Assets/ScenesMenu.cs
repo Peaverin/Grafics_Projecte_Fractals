@@ -16,7 +16,7 @@ public class ScenesMenu : MonoBehaviour
             GameObject btn = Instantiate(sceneBtnPrefab, transform, false);
             RectTransform rT = btn.GetComponent<RectTransform>();
             Vector3 position = rT.anchoredPosition;
-            rT.anchoredPosition = new Vector3(i * 110, position.y, position.z);
+            rT.anchoredPosition = new Vector3(i * 90, position.y, position.z);
             btn.GetComponent<SceneButton>().scene = i;
             btn.GetComponentInChildren<Text>().text = i.ToString();
         }

@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+
 [RequireComponent(typeof(Camera))]
 [ExecuteInEditMode]
 public class RaymarchCamera : MonoBehaviour
@@ -8,28 +10,28 @@ public class RaymarchCamera : MonoBehaviour
     //ENVIAR A SHADER:
     [SerializeField]
     public int _currentScene;
-    [SerializeField, Range(0.01F, 20.0F)]
-    float _fractalPower;
-    [SerializeField, Range(0.01F, 20.0F)]
-    float _fractalScapeRatio;
-    [SerializeField, Range(1, 150)]
-    int _fractalIterations;
-    [SerializeField, Range(0.01F, 10.0F)]
-    float _fractalScale;
-    [SerializeField, Range(0.01F, 2.0F)]
-    float _foldingLimit;
-    [SerializeField, Range(0.001F, 1.000F)]
-    float _minRadius;
-    [SerializeField, Range(0.500F, 10.000F)]
-    float _fixedRadius;
-    [SerializeField, Range(1, 50)]
-    int _fractalOffset;
-    [SerializeField, Range(1, 3000)]
-    int _numIterations;
-    [SerializeField, Range(0.0F, 2.0F)] 
-    float _linearDEOffset; // https://github.com/buddhi1980/mandelbulber_doc/releases/tag/2.24.0
     [SerializeField]
-    bool _enableLight;
+    FloatVariable _fractalPower;
+    [SerializeField]
+    FloatVariable _fractalScapeRatio;
+    [SerializeField]
+    FloatVariable _fractalIterations;
+    [SerializeField]
+    FloatVariable _fractalScale;
+    [SerializeField]
+    FloatVariable _foldingLimit;
+    [SerializeField]
+    FloatVariable _minRadius;
+    [SerializeField]
+    FloatVariable _fixedRadius;
+    [SerializeField]
+    FloatVariable _fractalOffset;
+    [SerializeField]
+    FloatVariable _numIterations;
+    [SerializeField]
+    FloatVariable _linearDEOffset; // https://github.com/buddhi1980/mandelbulber_doc/releases/tag/2.24.0
+    [SerializeField]
+    public bool _enableLight;
     //https://www.youtube.com/watch?v=82iBWIycU0o
     [SerializeField]
     private Shader _shader;
@@ -67,23 +69,23 @@ public class RaymarchCamera : MonoBehaviour
             return;
         }
         //Enviament dades menus:
-        _rayMarchmaterial.SetFloat("_fractalPower", _fractalPower);
-        _rayMarchmaterial.SetFloat("_fractalScapeRatio", _fractalScapeRatio);
-        _rayMarchmaterial.SetInt("_fractalIterations", _fractalIterations);
-        _rayMarchmaterial.SetFloat("_fractalScale", _fractalScale);
-        _rayMarchmaterial.SetFloat("_foldingLimit", _foldingLimit);
-        _rayMarchmaterial.SetFloat("_minRadius", _minRadius);
-        _rayMarchmaterial.SetFloat("_fixedRadius", _fixedRadius);
-        _rayMarchmaterial.SetInt("_fractalOffset", _fractalOffset);
+        _rayMarchmaterial.SetFloat("_fractalPower", _fractalPower.Value);
+        _rayMarchmaterial.SetFloat("_fractalScapeRatio", _fractalScapeRatio.Value);
+        _rayMarchmaterial.SetInt("_fractalIterations", _fractalIterations.IntValue);
+        _rayMarchmaterial.SetFloat("_fractalScale", _fractalScale.Value);
+        _rayMarchmaterial.SetFloat("_foldingLimit", _foldingLimit.Value);
+        _rayMarchmaterial.SetFloat("_minRadius", _minRadius.Value);
+        _rayMarchmaterial.SetFloat("_fixedRadius", _fixedRadius.Value);
+        _rayMarchmaterial.SetInt("_fractalOffset", _fractalOffset.IntValue);
         _rayMarchmaterial.SetInt("_currentScene", _currentScene);
-        _rayMarchmaterial.SetFloat("_linearDEOffset", _linearDEOffset);
+        _rayMarchmaterial.SetFloat("_linearDEOffset", _linearDEOffset.Value);
         _rayMarchmaterial.SetInt("_enableLight", _enableLight ? 1 : 0);
         //
         _rayMarchmaterial.SetVector("_LightDir", _directionalLight ? _directionalLight.forward : Vector3.down);
         _rayMarchmaterial.SetMatrix("_CamFrustum", CamFrustum(_camera));
         _rayMarchmaterial.SetMatrix("_CamToWorld", _camera.cameraToWorldMatrix);
         _rayMarchmaterial.SetFloat("_maxDistance", _maxDistance);
-        _rayMarchmaterial.SetFloat("_numIterations", _numIterations); 
+        _rayMarchmaterial.SetFloat("_numIterations", _numIterations.IntValue); 
         RenderTexture.active = destination;
         GL.PushMatrix();
         GL.LoadOrtho();
@@ -129,3 +131,4 @@ public class RaymarchCamera : MonoBehaviour
         return frustum;
     }
 }
+
