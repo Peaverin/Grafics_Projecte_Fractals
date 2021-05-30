@@ -2097,8 +2097,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2014603614}
-  m_LocalRotation: {x: 0.042612407, y: -0.089980416, z: -0.17588796, w: 0.97936267}
-  m_LocalPosition: {x: -5.07, y: 0.27, z: -4.71}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1, y: -1, z: -5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -2116,7 +2116,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9b0f2b17b8400f4092d3ef21aa0c1be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _currentScene: 7
+  _currentScene: 2
   _fractalPower: {fileID: 11400000, guid: 7ca0ffe13c029514a977309eacf07d5a, type: 2}
   _fractalScapeRatio: {fileID: 11400000, guid: 17d45d6c9e429ef4c876388746c7fdbb, type: 2}
   _fractalIterations: {fileID: 11400000, guid: a98b3a804975c5c46973d305cbefefb5, type: 2}
