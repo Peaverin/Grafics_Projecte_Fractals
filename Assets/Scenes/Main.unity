@@ -846,7 +846,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.000004754731}
+  m_AnchoredPosition: {x: 0, y: -0.00002276074}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!850595691 &857545461
@@ -1465,7 +1465,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2014603614}
   m_LocalRotation: {x: 0.042612407, y: -0.089980416, z: -0.17588796, w: 0.97936267}
-  m_LocalPosition: {x: 0.07, y: 0.27, z: -4.71}
+  m_LocalPosition: {x: -5.07, y: 0.27, z: -4.71}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -1483,13 +1483,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9b0f2b17b8400f4092d3ef21aa0c1be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _currentScene: 4
+  _currentScene: 7
   _fractalPower: 8.45
   _fractalScapeRatio: 4.23
-  _fractalIterations: 30
-  _fractalScale: 2
+  _fractalIterations: 28
+  _fractalScale: 3.49
+  _foldingLimit: 0.615
+  _minRadius: 0.136
+  _fixedRadius: 0
   _fractalOffset: 8
-  _numIterations: 1
+  _numIterations: 260
   _shader: {fileID: 4800000, guid: 16babf4fda1099f4ab881b0e8e5fe38f, type: 3}
   _maxDistance: 27.67
   _directionalLight: {fileID: 2133821516}

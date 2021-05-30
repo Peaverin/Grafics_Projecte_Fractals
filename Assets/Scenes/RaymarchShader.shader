@@ -31,6 +31,7 @@ Shader "PeerPlay/Raymarching"
 			uniform float _minRadius;
 			uniform float _fixedRadius;
 			uniform float _fractalOffset;
+			uniform float _linearDEOffset;
 			uniform int _currentScene;
 			uniform int _numIterations;
 			struct appdata
@@ -185,7 +186,7 @@ Shader "PeerPlay/Raymarching"
 			}
 
 
-			float tetrahedronFractalDE(float3 p)  //http://blog.hvidtfeldts.net/index.php/2011/08/distance-estimated-3d-fractals-iii-folding-space/
+			float4 tetrahedronFractalDE(float3 p)  //http://blog.hvidtfeldts.net/index.php/2011/08/distance-estimated-3d-fractals-iii-folding-space/
 			{
 				float r;
 				int n = 0;
@@ -200,11 +201,11 @@ Shader "PeerPlay/Raymarching"
 					n++;
 				}
 
-				return (length(p)) * pow(Scale, -float(n));
+				return float4((length(p)) * pow(Scale, -float(n)), -1 , -1, -1);
 			}
 
 
-			float mandelbulbDE(float3 pos) { //http://blog.hvidtfeldts.net/index.php/2011/09/distance-estimated-3d-fractals-v-the-mandelbulb-different-de-approximations/
+			float4 mandelbulbDE(float3 pos) { //http://blog.hvidtfeldts.net/index.php/2011/09/distance-estimated-3d-fractals-v-the-mandelbulb-different-de-approximations/
 				int Iterations = _fractalIterations;
 				float Bailout = _fractalScapeRatio; //radi escapament
 				float Power = _fractalPower; // z_{n+1} = (z_n)^Power + pos
@@ -230,10 +231,10 @@ Shader "PeerPlay/Raymarching"
 					z = zr * float3(sin(theta)*cos(phi), sin(phi)*sin(theta), cos(theta));
 					z += pos;
 				}
-				return 0.5*log(r)*r / dr;
+				return float4(0.5*log(r)*r / dr, -1 , -1, -1);
 			}
 
-			float mengerSpongeDE(float3 p) { // https://www.iquilezles.org/www/articles/menger/menger.htm
+			float4 mengerSpongeDE(float3 p) { // https://www.iquilezles.org/www/articles/menger/menger.htm
 				int Iterations = _fractalIterations;
 				float Scale = _fractalScale;
 
@@ -254,10 +255,10 @@ Shader "PeerPlay/Raymarching"
 					d = max(d, c);
 				}
 
-				return d;
+				return float4(d, -1 , -1 , -1);
 			}
 
-			float mandelboxDE(float3 p) { //http://blog.hvidtfeldts.net/index.php/2011/11/distance-estimated-3d-fractals-vi-the-mandelbox/
+			float4 mandelboxDE(float3 p) { //http://blog.hvidtfeldts.net/index.php/2011/11/distance-estimated-3d-fractals-vi-the-mandelbox/
 				int Iterations = _fractalIterations;
 				float foldingLimit = _foldingLimit;
 				float Scale = _fractalScale;
@@ -291,7 +292,7 @@ Shader "PeerPlay/Raymarching"
 					dr = dr*abs(Scale)+1.0;
 				}
 				float r = length(z);
-				return r/abs(dr);
+				return float4((r - _linearDEOffset) / abs(dr), -1 , -1, -1);
 			}
 
 			float clamp (float z, float minLim, float maxLim) {
@@ -349,26 +350,26 @@ Shader "PeerPlay/Raymarching"
 			//
 
 			/**********************************************FUNCIONS PRINCIPAL************************************************/
-			float distanceField(float3 p) {
-				float scene;
+			float4 distanceField(float3 p) {
+				float4 scene = float4(0.0, -1.0, -1.0, -1.0);
 				switch (_currentScene) {
 				case 1:
-					scene = singleSphere(p);
+					scene.x = singleSphere(p);
 					break;
 				case 2:
-					scene = infiniteSpheres(p);
+					scene.x = infiniteSpheres(p);
 					break;
 				case 3:
-					scene = infiniteBoxFrames(p);
+					scene.x = infiniteBoxFrames(p);
 					break;
 				case 4:
 					scene = tetrahedronFractalDE(p);
 					break;
 				case 5:
-					scene = scene3(p);
+					scene.x = scene3(p);
 					break;
 				case 6:
-					scene = scene1(p);
+					scene.x = scene1(p);
 					break;
 				case 7:
 					scene = mengerSpongeDE(p);
@@ -378,7 +379,7 @@ Shader "PeerPlay/Raymarching"
 					break;
 				default:
 					scene = mandelboxDE(p);
-					break;
+					break;//
 				}
 				return scene;
 			}
@@ -388,9 +389,9 @@ Shader "PeerPlay/Raymarching"
 				const float2 offset = float2(0.001, 0.0);
 
 				float3 normal = float3(  //ofset.xyy = (ofset.x, ofset.y, ofset.y)
-					distanceField(p + offset.xyy) - distanceField(p - offset.xyy),
-					distanceField(p + offset.yxy) - distanceField(p - offset.yxy),
-					distanceField(p + offset.yyx) - distanceField(p - offset.yyx));
+					distanceField(p + offset.xyy).x - distanceField(p - offset.xyy).x,
+					distanceField(p + offset.yxy).x - distanceField(p - offset.yxy).x,
+					distanceField(p + offset.yyx).x - distanceField(p - offset.yyx).x);
 
 				return normalize(normal);
 			}
@@ -405,13 +406,22 @@ Shader "PeerPlay/Raymarching"
 				return fixed4(color.x, color.y, color.z, 1.0);
 			}
 
-			fixed4 getColor(float3 p, float3 ray_origin, float3 ray_direction, int t) {
+			fixed4 getColor(float3 p, float3 ray_origin, float3 ray_direction, int t, float3 DEColor) {
+				//p: punt
+				//t: tal que p = r_o + r_d * t
+				//DEColor: arriba directament d'alguns algoritmes de DE
 				fixed4 color;
 				if (_currentScene == 3 && abs(p.x - 2.5) < 2.5 && abs(p.y - 2.5) < 2.5 && abs(p.z -2.5) < 2.5) {
 					color = fixed4(1, 0, 0, 1);
 				}
 				else {
-					color = fixed4(ray_direction, 1);
+					if (DEColor.y > 0) {
+						color = fixed4(DEColor, 1);
+					}
+					else {
+						color = fixed4(ray_direction, 1);
+					}
+					
 				}
 				return color;
 			}
@@ -432,11 +442,12 @@ Shader "PeerPlay/Raymarching"
 					float3 p = ray_origin + ray_direction * t; //Obtenim el punt actual 
 															   //mirem si hi ha hit en el distance field (dist < epsilon)
 
-					float dist = distanceField(p);
+					float4 distField = distanceField(p); //result.x es la distancia, yzt es el color que arriba de l'escena per alguns mètodes
+					float dist = distField.x;
 					if (dist < 0.01) {
 						float3 normal = getNormal(p);
 						float light = dot(-_LightDir, normal);//Lights (si s'expandeix, fer funci� a part millor)
-						fixed4 color = getColor(p, ray_origin, ray_direction, t);
+						fixed4 color = getColor(p, ray_origin, ray_direction, t, distField.yzw);
 						result = color * light; //Aqu� es determina el color final
 						break;
 					}
