@@ -1156,7 +1156,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: '[P]: Show/Hide GUI'
+  m_Text: '[TAB]: Show/Hide GUI'
 --- !u!222 &999193752
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2147,7 +2147,7 @@ MonoBehaviour:
   shiftAdd: 2.5
   maxShift: 20
   camSens: 0.08
-  turnSpeed: 4
+  turnSpeed: 2
   moveSpeed: 2
   minTurnAngle: -90
   maxTurnAngle: 90
