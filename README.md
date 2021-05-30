@@ -1,6 +1,14 @@
 # Fractal Explorer
 Projecte del grup f01 de l'assignatura de Gràfics i Visualització de Dades de la Universitat de Barcelona.
 
+## Instruccions d'ús:
+
+- Apretar ESC per mostrar/amagar el menú.
+- Moviment amb WASD i moure camarà amb moviment ratolí.
+- Els diferents numeros indiquen diferents escenes.
+- El Lantern mode consisteix simplement en fer que la direccional light tingui la mateixa direcció que el vector forward de la càmera.
+- Nota: tots els sliders funcionen per a totes les escenes.
+
 ## Recursos utilitzats
 A continuació, links a tots els recursos utilitzats/consultats durant l'elaboració d'aquest projecte.
 
@@ -38,6 +46,10 @@ A continuació, links a tots els recursos utilitzats/consultats durant l'elabora
     https://github.com/buddhi1980/mandelbulber2
     
     https://github.com/buddhi1980/mandelbulber_doc/releases/tag/2.24.0
+    
+- Segona versió Mandelbox:
+
+    http://www.fractalforums.com/programming/performance-for-fps-style-mandelbox-exploration/
 
 ## Recursos a consultar:
 
