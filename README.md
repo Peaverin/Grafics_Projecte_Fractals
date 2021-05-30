@@ -3,7 +3,7 @@ Projecte del grup f01 de l'assignatura de Gràfics i Visualització de Dades de 
 
 ## Instruccions d'ús:
 
-- Apretar ESC per mostrar/amagar el menú.
+- Apretar ESC/P/Tab per mostrar/amagar el menú.
 - Moviment amb WASD i moure camarà amb moviment ratolí.
 - Els diferents numeros indiquen diferents escenes.
 - El Lantern mode consisteix simplement en fer que la direccional light tingui la mateixa direcció que el vector forward de la càmera.
