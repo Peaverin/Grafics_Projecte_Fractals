@@ -206,7 +206,7 @@ Shader "PeerPlay/Raymarching"
 			}
 
 
-			float mandelbulbDE(float3 pos) { //http://blog.hvidtfeldts.net/index.php/2011/09/distance-estimated-3d-fractals-v-the-mandelbulb-different-de-approximations/
+			float4 mandelbulbDE(float3 pos) { //http://blog.hvidtfeldts.net/index.php/2011/09/distance-estimated-3d-fractals-v-the-mandelbulb-different-de-approximations/
 				int Iterations = _fractalIterations;
 				float Bailout = _fractalScapeRatio; //radi escapament
 				float Power = _fractalPower; // z_{n+1} = (z_n)^Power + pos
@@ -214,6 +214,7 @@ Shader "PeerPlay/Raymarching"
 				float3 z = pos;
 				float dr = 1.0;
 				float r = 0.0;
+				float iter = 0.0;
 				for (int i = 0; i < Iterations; i++) {
 					r = length(z);
 					if (r > Bailout) break;
@@ -231,8 +232,9 @@ Shader "PeerPlay/Raymarching"
 					// convert back to cartesian coordinates
 					z = zr * float3(sin(theta)*cos(phi), sin(phi)*sin(theta), cos(theta));
 					z += pos;
+					iter += 1.0;
 				}
-				return 0.5*log(r)*r / dr;
+				return float4(0.5*log(r)*r / dr, iter / float(Iterations), -1, -1);
 			}
 
 			float4 mengerSpongeDE(float3 p) { // https://www.iquilezles.org/www/articles/menger/menger.htm
@@ -426,7 +428,7 @@ Shader "PeerPlay/Raymarching"
 					scene = mengerSpongeDE(p);
 					break;
 				case 8:
-					scene.x = mandelbulbDE(p);
+					scene = mandelbulbDE(p);
 					break;
 				case 9:
 					scene = mandelboxDE(p);
@@ -463,6 +465,25 @@ Shader "PeerPlay/Raymarching"
 				return fixed4(color.x, color.y, color.z, 1.0);
 			}
 
+			fixed4 blinnPhong(fixed4 color, float3 normal, float3 ray_direction) {
+				fixed4 outColor;
+				float3 lightAmbient = float3(0.1, 0.1, 0.1);
+				float3 lightDiffuse = float3(1.0, 1.0, 1.0);
+				float3 lightSpecular = float3(0.1, 0.1, 0.1); 
+				float shininess = 50.0;
+
+				float3 V = -ray_direction;
+				float3 L = normalize(-_LightDir);
+
+				float H = normalize(V + L);
+
+				float3 ca = (color.xyz / 1.0) * lightAmbient;
+				float3 cd = lightDiffuse * color.xyz * max(dot(normal, L), 0);
+				float3 cs = lightSpecular * pow(dot(normal, H), shininess)/shininess;
+
+				return fixed4(ca+cd+cs, 1);
+			}
+
 			fixed4 getColor(float3 p, float3 ray_origin, float3 ray_direction, int t, float3 DEColor, int iters) {
 				//p: punt
 				//t: tal que p = r_o + r_d * t
@@ -480,6 +501,9 @@ Shader "PeerPlay/Raymarching"
 				}
 				else if (_currentScene == 7) {//MengerSponge
 					color = fixed4(DEColor.x, 0, 1 - DEColor.x, 1);
+				}
+				else if (_currentScene == 8) {//MandelBulb
+					color = fixed4(sqrt(DEColor.x), sqrt(sqrt(DEColor.x)), 0.5 - DEColor.x, 1);
 				}
 				else if (_currentScene == 9) {//Mandelbox
 					color = fixed4(DEColor.x, 0, 1 - DEColor.x, 1);
@@ -501,7 +525,8 @@ Shader "PeerPlay/Raymarching"
 				if (_enableLight == 1) {
 					float3 normal = getNormal(p);
 					float light = dot(-_LightDir, normal); //Fer metode a part si es vol complicar (i.e Blinn phong)
-					color *= light;
+					color = blinnPhong(color, normal, ray_direction);
+					//color *= light; 
 				}
 				return color;
 			}

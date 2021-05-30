@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   value: 0.01
   text: Fractal Scale
-  minValue: 0.01
-  maxValue: 20
+  minValue: -5
+  maxValue: 10
   isInt: 0
