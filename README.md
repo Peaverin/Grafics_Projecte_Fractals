@@ -38,3 +38,7 @@ A continuació, links a tots els recursos utilitzats/consultats durant l'elabora
     https://github.com/buddhi1980/mandelbulber2
     
     https://github.com/buddhi1980/mandelbulber_doc/releases/tag/2.24.0
+
+## Recursos a consultar:
+
+Pintar fractal amb orbit trap https://iquilezles.org/www/articles/mandelbulb/mandelbulb.htm
