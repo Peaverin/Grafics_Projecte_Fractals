@@ -28,6 +28,8 @@ public class RaymarchCamera : MonoBehaviour
     int _numIterations;
     [SerializeField, Range(0.0F, 2.0F)] 
     float _linearDEOffset; // https://github.com/buddhi1980/mandelbulber_doc/releases/tag/2.24.0
+    [SerializeField]
+    bool _enableLight;
     //https://www.youtube.com/watch?v=82iBWIycU0o
     [SerializeField]
     private Shader _shader;
@@ -75,12 +77,13 @@ public class RaymarchCamera : MonoBehaviour
         _rayMarchmaterial.SetInt("_fractalOffset", _fractalOffset);
         _rayMarchmaterial.SetInt("_currentScene", _currentScene);
         _rayMarchmaterial.SetFloat("_linearDEOffset", _linearDEOffset);
+        _rayMarchmaterial.SetInt("_enableLight", _enableLight ? 1 : 0);
         //
         _rayMarchmaterial.SetVector("_LightDir", _directionalLight ? _directionalLight.forward : Vector3.down);
         _rayMarchmaterial.SetMatrix("_CamFrustum", CamFrustum(_camera));
         _rayMarchmaterial.SetMatrix("_CamToWorld", _camera.cameraToWorldMatrix);
         _rayMarchmaterial.SetFloat("_maxDistance", _maxDistance);
-        _rayMarchmaterial.SetFloat("_numIterations", _numIterations);
+        _rayMarchmaterial.SetFloat("_numIterations", _numIterations); 
         RenderTexture.active = destination;
         GL.PushMatrix();
         GL.LoadOrtho();
