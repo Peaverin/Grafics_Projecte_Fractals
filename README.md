@@ -57,3 +57,5 @@ A continuació, links a tots els recursos utilitzats/consultats durant l'elabora
 Pintar fractal amb orbit trap https://iquilezles.org/www/articles/mandelbulb/mandelbulb.htm
 
 Soft shadow + penumbra for free: https://iquilezles.org/www/articles/rmshadows/rmshadows.htm
+
+Menger sponge mod: http://www.fractalforums.com/sierpinski-gasket/kaleidoscopic-(escape-time-ifs)/?PHPSESSID=9b317826e4239ac1c44dc238a12188eb
