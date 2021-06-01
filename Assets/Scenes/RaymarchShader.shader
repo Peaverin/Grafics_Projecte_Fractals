@@ -200,16 +200,25 @@ Shader "PeerPlay/Raymarching"
 				int n = 0;
 				float Scale = _fractalScale;
 				float Offset = _fractalOffset;
+				float orbit = dot(p,p);
+				float3 color = p;
 
 				while (n < _fractalIterations) {
 					if (p.x + p.y < 0) p.xy = -p.yx; // fold 1
 					if (p.x + p.z < 0) p.xz = -p.zx; // fold 2
 					if (p.y + p.z < 0) p.zy = -p.yz; // fold 3	
 					p = p * Scale - Offset * (Scale - 1.0);
+					//orbit = min(orbit, dot(p,p));
+					if (dot(p,p) < orbit) {
+						orbit = dot(p,p);
+						color = p;
+					}
 					n++;
 				}
+				color = normalize(color);
 
-				return float4((length(p)) * pow(Scale, -float(n)), -1 , -1, -1);
+				//return float4((length(p)) * pow(Scale, -float(n)), orbit , -1, -1);
+				return float4((length(p)) * pow(Scale, -float(n)), 0.5 + color.x*0.5 , 0.5 + color.y*0.5, 0.5 + color.z*0.5);
 			}
 
 
@@ -223,6 +232,7 @@ Shader "PeerPlay/Raymarching"
 				float r = 0.0;
 				float iter = 0.0;
 				for (int i = 0; i < Iterations; i++) {
+					iter += 1.0;
 					r = length(z);
 					if (r > Bailout) break;
 
@@ -239,9 +249,9 @@ Shader "PeerPlay/Raymarching"
 					// convert back to cartesian coordinates
 					z = zr * float3(sin(theta)*cos(phi), sin(phi)*sin(theta), cos(theta));
 					z += pos;
-					iter += 1.0;
+					
 				}
-				return float4(0.5*log(r)*r / dr, iter / float(Iterations), -1, -1);
+				return float4(0.5*log(r)*r / dr, iter, -1, -1);
 			}
 
 			float4 mengerSpongeDE(float3 p) { // Versió optimitzada de https://www.iquilezles.org/www/articles/menger/menger.htm a partir del concepte original de resta de creus a capses
@@ -423,7 +433,7 @@ Shader "PeerPlay/Raymarching"
 					scene.x = infiniteBoxFrames(p);
 					break;
 				case 4:
-					scene.x = tetrahedronFractalDE(p);
+					scene = tetrahedronFractalDE(p);
 					break;
 				case 5:
 					scene.x = scene3(p);
@@ -496,6 +506,7 @@ Shader "PeerPlay/Raymarching"
 				//t: tal que p = r_o + r_d * t
 				//DEColor: arriba directament d'alguns algoritmes de DE
 
+				float3 normal = getNormal(p);
 				fixed4 color;
 				if (_currentScene == 3 ){ //Escena 3 de boxes
 					if (abs(p.x - 2.5) < 2.5 && abs(p.y - 2.5) < 2.5 && abs(p.z - 2.5) < 2.5){
@@ -506,11 +517,19 @@ Shader "PeerPlay/Raymarching"
 					}
 					
 				}
+				else if (_currentScene == 4) {//Tetrahedron
+					color = fixed4(DEColor.x, DEColor.y, DEColor.z, 1);
+				}
 				else if (_currentScene == 7) {//MengerSponge
 					color = fixed4(DEColor.x, 0, 1 - DEColor.x, 1);
 				}
 				else if (_currentScene == 8) {//MandelBulb
-					color = fixed4(sqrt(DEColor.x), sqrt(sqrt(DEColor.x)), 0.5 - DEColor.x, 1);
+					float index = DEColor.x;
+					float n = 2.0;
+					color = fixed4(n/(index + n - 1 ), 2*n/(index + 2*n - 1 ), 3*n/(index + 3*n - 1 ), 1);
+					//color.xyz *= normalize(p + normal).xyz;
+					
+					//color = fixed4(sqrt(n/(DEColor.x + n - 1 )), 1.0 - sqrt(n/(DEColor.x + n - 1 )), n*3/(DEColor.x + n*3 - 1 ), 1);
 				}
 				else if (_currentScene == 9) {//Mandelbox
 					color = fixed4(DEColor.x, 0, 1 - DEColor.x, 1);
@@ -530,7 +549,6 @@ Shader "PeerPlay/Raymarching"
 
 				//Càlcul normal i llum
 				if (_enableLight == 1) {
-					float3 normal = getNormal(p);
 					float light = dot(-_LightDir, normal); //Fer metode a part si es vol complicar (i.e Blinn phong)
 					color = blinnPhong(color, normal, ray_direction);
 					//color *= light; 
