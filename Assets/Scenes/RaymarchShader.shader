@@ -86,7 +86,7 @@ Shader "PeerPlay/Raymarching"
 			//FUNCIONS PER "DOBLEGAR" EL PLA (idea de https://www.shadertoy.com/view/MsBGW1) 
 			float3 repeatXZ(float3 p, float2 factor)
 			{
-				float2 tmp = mod2(p.xz, factor) - 0.5*factor;
+				float2 tmp = mod2(p.xz, factor) -0.5*factor;
 				return float3(tmp.x, p.y, tmp.y);
 			}
 
@@ -128,6 +128,13 @@ Shader "PeerPlay/Raymarching"
 				return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
 			}
 
+			float sdCross(float3 p, float3 pos, float b)
+			{
+				float da = sdBox(p.xyz, pos, float3(b, b/2, b/2));
+				float db = sdBox(p.yzx, pos, float3(b/2, b, b/2));
+				float dc = sdBox(p.zxy, pos, float3(b/2, b/2, b));
+				return min(da, min(db, dc));
+			}
 
 			//BOX FRAME
 			float sdBoxFrame(float3 p, float3 pos, float3 b, float e) //p: current point. pos: box position b: dimensions. e : amplada costats
@@ -237,7 +244,7 @@ Shader "PeerPlay/Raymarching"
 				return float4(0.5*log(r)*r / dr, iter / float(Iterations), -1, -1);
 			}
 
-			float4 mengerSpongeDE(float3 p) { // https://www.iquilezles.org/www/articles/menger/menger.htm
+			float4 mengerSpongeDE(float3 p) { // Versió optimitzada de https://www.iquilezles.org/www/articles/menger/menger.htm a partir del concepte original de resta de creus a capses
 				int Iterations = _fractalIterations;
 				float Scale = _fractalScale;
 
@@ -255,7 +262,7 @@ Shader "PeerPlay/Raymarching"
 					float db = max(r.y, r.z);
 					float dc = max(r.z, r.x);
 					float c = (min(da, min(db, dc)) - 1.0) / s;
-
+					
 					if (c>d)
 					{
 						d = c;
@@ -407,10 +414,10 @@ Shader "PeerPlay/Raymarching"
 				float4 scene = float4(0.0, -1.0, -1.0, -1.0);
 				switch (_currentScene) {
 				case 1:
-					scene.x = singleSphere(p);
+					scene.x = sdCross(p/2, float3(0.0, 0.0, 0.0), 1.0) *2 ;
 					break;
 				case 2:
-					scene.x = infiniteSpheres(p);
+					scene.x = sdBoxFrame(p, float3(0.0, 0.0, 0.0), float3(2.5, 2.5, 2.5), 0.10);
 					break;
 				case 3:
 					scene.x = infiniteBoxFrames(p);
@@ -525,8 +532,8 @@ Shader "PeerPlay/Raymarching"
 				if (_enableLight == 1) {
 					float3 normal = getNormal(p);
 					float light = dot(-_LightDir, normal); //Fer metode a part si es vol complicar (i.e Blinn phong)
-					color = blinnPhong(color, normal, ray_direction);
-					//color *= light; 
+					//color = blinnPhong(color, normal, ray_direction);
+					color *= light; 
 				}
 				return color;
 			}
