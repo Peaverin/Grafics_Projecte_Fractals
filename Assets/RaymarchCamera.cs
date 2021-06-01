@@ -33,12 +33,20 @@ public class RaymarchCamera : MonoBehaviour
     [SerializeField]
     FloatVariable _maxDistance;
     [SerializeField]
+    FloatVariable _shadowFactor;
+    [SerializeField]
+    public FloatVariable _raymarchEpsilon;
+    [SerializeField]
+    public FloatVariable _shadowEpsilon;
+    [SerializeField]
     public bool _enableLight;
-    //https://www.youtube.com/watch?v=82iBWIycU0o
+    [SerializeField]
+    public bool _enableShadows;
     [SerializeField]
     private Shader _shader;
-
-    public Material _rayMarchmaterial {
+    
+    public Material _rayMarchmaterial
+    {//https://www.youtube.com/watch?v=82iBWIycU0o
         get {
             if (!_rayMarchMat && _shader) {
                 _rayMarchMat = new Material(_shader);
@@ -80,12 +88,16 @@ public class RaymarchCamera : MonoBehaviour
         _rayMarchmaterial.SetInt("_currentScene", _currentScene);
         _rayMarchmaterial.SetFloat("_linearDEOffset", _linearDEOffset.Value);
         _rayMarchmaterial.SetInt("_enableLight", _enableLight ? 1 : 0);
+        _rayMarchmaterial.SetInt("_enableShadows", _enableShadows ? 1 : 0);
         //
         _rayMarchmaterial.SetVector("_LightDir", _directionalLight ? _directionalLight.forward : Vector3.down);
         _rayMarchmaterial.SetMatrix("_CamFrustum", CamFrustum(_camera));
         _rayMarchmaterial.SetMatrix("_CamToWorld", _camera.cameraToWorldMatrix);
         _rayMarchmaterial.SetFloat("_maxDistance", _maxDistance.Value);
         _rayMarchmaterial.SetFloat("_numIterations", _numIterations.IntValue); 
+        _rayMarchmaterial.SetFloat("_shadowFactor", _shadowFactor.Value);
+        _rayMarchmaterial.SetFloat("_raymarchEpsilon", _raymarchEpsilon.Value);
+        _rayMarchmaterial.SetFloat("_shadowEpsilon", _shadowEpsilon.Value);
         RenderTexture.active = destination;
         GL.PushMatrix();
         GL.LoadOrtho();

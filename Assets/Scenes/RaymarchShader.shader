@@ -35,6 +35,10 @@ Shader "PeerPlay/Raymarching"
 			uniform int _currentScene;
 			uniform int _numIterations;
 			uniform int _enableLight;
+			uniform int _enableShadows;
+			uniform float _shadowFactor;
+			uniform float _raymarchEpsilon;
+			uniform float _shadowEpsilon;
 			struct appdata
 			{
 				float4 vertex : POSITION;
@@ -445,7 +449,7 @@ Shader "PeerPlay/Raymarching"
 					scene = mengerSpongeDE(p);
 					break;
 				case 8:
-					scene = mandelbulbDE(p);
+					scene = mandelbulbDE(p / _fractalScale) * _fractalScale;
 					break;
 				case 9:
 					scene = mandelboxDE(p);
@@ -506,7 +510,7 @@ Shader "PeerPlay/Raymarching"
 				float t = 0.005; //Distancia viatjada al llarg de la direcci� del raig
 				for (int i = 0; i < _numIterations; i++) {
 					float h = distanceField(ro + rd*t).x;
-					if( h < 0.005 )
+					if( h < _shadowEpsilon )
 						return 0.0;
 					res = min( res, k*h/t );
 					t += h;
@@ -566,7 +570,10 @@ Shader "PeerPlay/Raymarching"
 					color = blinnPhong(color, normal, ray_direction);
 					//color *= light; 
 				}
-				color *= softShadow(p, normalize(-_LightDir), 3.0 );
+				if (_enableShadows) {
+					color *= softShadow(p, normalize(-_LightDir), _shadowFactor);
+				}
+				
 				return color;
 			}
 
@@ -588,7 +595,7 @@ Shader "PeerPlay/Raymarching"
 
 					float4 distField = distanceField(p); //result.x es la distancia, yzt es el color que arriba de l'escena per alguns mètodes
 					float dist = distField.x;
-					if (dist < 0.01) {
+					if (dist < _raymarchEpsilon) {
 						fixed4 color = getColor(p, ray_origin, ray_direction, t, distField.yzw, i);
 						result = color;
 						break;

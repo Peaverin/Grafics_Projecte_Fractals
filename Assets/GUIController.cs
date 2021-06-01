@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GUIController : MonoBehaviour
 {
@@ -8,18 +9,29 @@ public class GUIController : MonoBehaviour
     public GameObject canvas;
     [SerializeField]
     public GameObject camera;
-    public Transform slidersContainer;
+    public Transform rightSlidersContainer;
+    public Transform leftSlidersContainer;
     public GameObject sliderPrefab;
-    public FloatVariable[] sliderVariables;
+    public FloatVariable[] leftSliderVariables;
+    public FloatVariable[] rightSliderVariables;
+    public Text lightsText;
+    public Text shadowsText;
+    public Text lanternText;
     private bool active;
 
     private void Awake()
     {
         active = true;
         UpdateGui();
-        for (int i = 0; i < sliderVariables.Length; i++) {
-            GameObject slider = Instantiate(sliderPrefab, slidersContainer, false);
-            slider.GetComponent<MenuSlider>().floatVariable = sliderVariables[i];
+        for (int i = 0; i < rightSliderVariables.Length; i++) {
+            GameObject slider = Instantiate(sliderPrefab, rightSlidersContainer, false);
+            slider.GetComponent<MenuSlider>().floatVariable = rightSliderVariables[i];
+            slider.GetComponent<MenuSlider>().Init();
+        }
+        for (int i = 0; i < leftSliderVariables.Length; i++)
+        {
+            GameObject slider = Instantiate(sliderPrefab, leftSlidersContainer, false);
+            slider.GetComponent<MenuSlider>().floatVariable = leftSliderVariables[i];
             slider.GetComponent<MenuSlider>().Init();
         }
         lantern = false;
@@ -57,8 +69,26 @@ public class GUIController : MonoBehaviour
     public void LightsOnOff() {
         RaymarchCamera c = GameObject.FindObjectOfType<RaymarchCamera>();
         c._enableLight = !c._enableLight;
+        if (c._enableLight)
+        {
+            lightsText.text = "Disable Lights";
+        }
+        else {
+            lightsText.text = "Enable Lights";
+        }
     }
 
+    public void ShadowsOnOff() {
+        RaymarchCamera c = GameObject.FindObjectOfType<RaymarchCamera>();
+        c._enableShadows = !c._enableShadows;
+        if (c._enableShadows)
+        {
+            shadowsText.text = "Disable Shadows";
+        }
+        else {
+            shadowsText.text = "Enable Shadows";
+        }
+    }
 
     private bool lantern;
     private Vector3 dirLightPos;
@@ -73,11 +103,13 @@ public class GUIController : MonoBehaviour
             dirLight.transform.parent = GameObject.FindObjectOfType<Camera>().transform;
             dirLight.transform.localPosition = new Vector3(0, 0, 0);
             dirLight.transform.localRotation = Quaternion.Euler(0, 0, 0);
+            lanternText.text = "Deactivate Lantern";
         }
         else {
             dirLight.transform.parent = null;
             dirLight.transform.localPosition = dirLightPos;
             dirLight.transform.localRotation = dirLightRot;
+            lanternText.text = "Activate Lantern";
         }
     }
 }

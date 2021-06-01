@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a81240b0a8d75e6409a19ef7937c1b8d, type: 3}
-  m_Name: Fractal Scale
+  m_Name: Shadow epsilon
   m_EditorClassIdentifier: 
-  value: 10
-  text: Fractal Scale
-  minValue: -5
-  maxValue: 30
+  value: 0.05
+  text: Shadow Epsilon
+  minValue: 0.0001
+  maxValue: 0.1
   isInt: 0
