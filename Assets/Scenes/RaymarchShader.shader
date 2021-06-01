@@ -501,6 +501,19 @@ Shader "PeerPlay/Raymarching"
 				return fixed4(ca+cd+cs, 1);
 			}
 
+			float softShadow(float3 ro, float3 rd, float k ){
+				float res = 1.0;
+				float t = 0.005; //Distancia viatjada al llarg de la direcci� del raig
+				for (int i = 0; i < _numIterations; i++) {
+					float h = distanceField(ro + rd*t).x;
+					if( h < 0.005 )
+						return 0.0;
+					res = min( res, k*h/t );
+					t += h;
+				}
+				return res;
+			}
+
 			fixed4 getColor(float3 p, float3 ray_origin, float3 ray_direction, int t, float3 DEColor, int iters) {
 				//p: punt
 				//t: tal que p = r_o + r_d * t
@@ -553,6 +566,7 @@ Shader "PeerPlay/Raymarching"
 					color = blinnPhong(color, normal, ray_direction);
 					//color *= light; 
 				}
+				color *= softShadow(p, normalize(-_LightDir), 3.0 );
 				return color;
 			}
 
