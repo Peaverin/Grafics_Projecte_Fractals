@@ -31,6 +31,8 @@ public class RaymarchCamera : MonoBehaviour
     [SerializeField]
     FloatVariable _linearDEOffset; // https://github.com/buddhi1980/mandelbulber_doc/releases/tag/2.24.0
     [SerializeField]
+    FloatVariable _maxDistance;
+    [SerializeField]
     public bool _enableLight;
     //https://www.youtube.com/watch?v=82iBWIycU0o
     [SerializeField]
@@ -58,8 +60,6 @@ public class RaymarchCamera : MonoBehaviour
 
     private Camera _cam;
 
-    public float _maxDistance;
-
     public Transform _directionalLight;
 
     private void OnRenderImage(RenderTexture source, RenderTexture destination)
@@ -84,7 +84,7 @@ public class RaymarchCamera : MonoBehaviour
         _rayMarchmaterial.SetVector("_LightDir", _directionalLight ? _directionalLight.forward : Vector3.down);
         _rayMarchmaterial.SetMatrix("_CamFrustum", CamFrustum(_camera));
         _rayMarchmaterial.SetMatrix("_CamToWorld", _camera.cameraToWorldMatrix);
-        _rayMarchmaterial.SetFloat("_maxDistance", _maxDistance);
+        _rayMarchmaterial.SetFloat("_maxDistance", _maxDistance.Value);
         _rayMarchmaterial.SetFloat("_numIterations", _numIterations.IntValue); 
         RenderTexture.active = destination;
         GL.PushMatrix();
