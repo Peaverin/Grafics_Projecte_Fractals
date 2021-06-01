@@ -17,6 +17,7 @@ public class GUIController : MonoBehaviour
     public Text lightsText;
     public Text shadowsText;
     public Text lanternText;
+    public Text phongText;
     private bool active;
 
     private void Awake()
@@ -72,9 +73,11 @@ public class GUIController : MonoBehaviour
         if (c._enableLight)
         {
             lightsText.text = "Disable Lights";
+            phongText.GetComponentInParent<Button>().interactable = true;
         }
         else {
             lightsText.text = "Enable Lights";
+            phongText.GetComponentInParent<Button>().interactable = false;
         }
     }
 
@@ -87,6 +90,20 @@ public class GUIController : MonoBehaviour
         }
         else {
             shadowsText.text = "Enable Shadows";
+        }
+    }
+
+    public void BPOnOff()
+    {
+        RaymarchCamera c = GameObject.FindObjectOfType<RaymarchCamera>();
+        c._blinnPhong = !c._blinnPhong;
+        if (c._blinnPhong)
+        {
+            phongText.text = "Use Basic Lightning";
+        }
+        else
+        {
+            phongText.text = "Use B-P Lightning";
         }
     }
 

@@ -43,6 +43,8 @@ public class RaymarchCamera : MonoBehaviour
     [SerializeField]
     public bool _enableShadows;
     [SerializeField]
+    public bool _blinnPhong;
+    [SerializeField]
     private Shader _shader;
     
     public Material _rayMarchmaterial
@@ -88,7 +90,7 @@ public class RaymarchCamera : MonoBehaviour
         _rayMarchmaterial.SetInt("_currentScene", _currentScene);
         _rayMarchmaterial.SetFloat("_linearDEOffset", _linearDEOffset.Value);
         _rayMarchmaterial.SetInt("_enableLight", _enableLight ? 1 : 0);
-        _rayMarchmaterial.SetInt("_enableShadows", _enableShadows ? 1 : 0);
+        _rayMarchmaterial.SetInt("_enableShadows", _enableShadows ? 1 : 0);_rayMarchmaterial.SetInt("_blinnPhong", _blinnPhong ? 1 : 0);
         //
         _rayMarchmaterial.SetVector("_LightDir", _directionalLight ? _directionalLight.forward : Vector3.down);
         _rayMarchmaterial.SetMatrix("_CamFrustum", CamFrustum(_camera));

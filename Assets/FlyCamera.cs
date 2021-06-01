@@ -53,7 +53,7 @@ public class FlyCamera : MonoBehaviour
         //Keyboard commands
         float f = 0.0f;
         Vector3 p = GetBaseInput();
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (Input.GetKey(KeyCode.LeftShift) || Input.GetMouseButton(1))
         {
             totalRun += Time.deltaTime;
             p = p * totalRun * shiftAdd;
@@ -86,7 +86,7 @@ public class FlyCamera : MonoBehaviour
     private Vector3 GetBaseInput()
     { //returns the basic values, if it's 0 than it's not active.
         Vector3 p_Velocity = new Vector3();
-        if (Input.GetKey(KeyCode.W))
+        if (Input.GetKey(KeyCode.W) || Input.GetMouseButton(0))
         {
             p_Velocity += new Vector3(0, 0, 1);
         }

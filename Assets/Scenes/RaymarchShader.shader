@@ -36,6 +36,7 @@ Shader "PeerPlay/Raymarching"
 			uniform int _numIterations;
 			uniform int _enableLight;
 			uniform int _enableShadows;
+			uniform int _blinnPhong;
 			uniform float _shadowFactor;
 			uniform float _raymarchEpsilon;
 			uniform float _shadowEpsilon;
@@ -455,7 +456,7 @@ Shader "PeerPlay/Raymarching"
 					scene = mandelboxDE(p);
 					break;
 				case 10:
-					scene = mandelboxDE2(p);
+					scene = mandelboxDE2(p / 10.0) * 10.0;
 					break;
 				default:
 					scene = mandelboxDE(p);
@@ -566,9 +567,13 @@ Shader "PeerPlay/Raymarching"
 
 				//Càlcul normal i llum
 				if (_enableLight == 1) {
-					float light = dot(-_LightDir, normal); //Fer metode a part si es vol complicar (i.e Blinn phong)
-					color = blinnPhong(color, normal, ray_direction);
-					//color *= light; 
+					if (_blinnPhong == 1) {
+						color = blinnPhong(color, normal, ray_direction);
+					}
+					else { //Basic light
+						float light = dot(-_LightDir, normal); 
+						color *= light;
+					} 
 				}
 				if (_enableShadows) {
 					color *= softShadow(p, normalize(-_LightDir), _shadowFactor);
