@@ -476,8 +476,8 @@ Shader "PeerPlay/Raymarching"
 				fixed4 outColor;
 				float3 lightAmbient = float3(0.1, 0.1, 0.1);
 				float3 lightDiffuse = float3(1.0, 1.0, 1.0);
-				float3 lightSpecular = float3(0.1, 0.1, 0.1); 
-				float shininess = 50.0;
+				float3 lightSpecular = float3(1.0, 1.0, 1.0); 
+				float shininess = 10.0;
 
 				float3 V = -ray_direction;
 				float3 L = normalize(-_LightDir);
@@ -485,8 +485,8 @@ Shader "PeerPlay/Raymarching"
 				float H = normalize(V + L);
 
 				float3 ca = (color.xyz / 1.0) * lightAmbient;
-				float3 cd = lightDiffuse * color.xyz * max(dot(normal, L), 0);
-				float3 cs = lightSpecular * pow(dot(normal, H), shininess)/shininess;
+				float3 cd = lightDiffuse * color.xyz * max(dot(normal, L), 0.0);
+				float3 cs = lightSpecular * color.xyz * pow(max(dot(normal, H), 0.0), shininess)*0.05;
 
 				return fixed4(ca+cd+cs, 1);
 			}
@@ -532,8 +532,8 @@ Shader "PeerPlay/Raymarching"
 				if (_enableLight == 1) {
 					float3 normal = getNormal(p);
 					float light = dot(-_LightDir, normal); //Fer metode a part si es vol complicar (i.e Blinn phong)
-					//color = blinnPhong(color, normal, ray_direction);
-					color *= light; 
+					color = blinnPhong(color, normal, ray_direction);
+					//color *= light; 
 				}
 				return color;
 			}
