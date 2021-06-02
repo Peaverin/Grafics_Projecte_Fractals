@@ -579,6 +579,9 @@ Shader "PeerPlay/Raymarching"
 				else if (_currentScene == 8) {//Mandelbox
 					color = fixed4(DEColor.x, 0, 1 - DEColor.x, 1);
 				}
+				else if (_currentScene == 7) {//Sierp. Tetrahedron point color
+					color = fixed4(p, 1);
+				}
 				else if (_currentScene == 9) {//Mandelbox segona implementació
 					float ca = 1.0 - float(iters) / float(_numIterations);
 					float3 c = float3(ca, ca, ca);

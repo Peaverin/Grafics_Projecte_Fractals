@@ -15,5 +15,5 @@ MonoBehaviour:
   value: 8
   text: Shadow Factor
   minValue: 2
-  maxValue: 200
+  maxValue: 128
   isInt: 0

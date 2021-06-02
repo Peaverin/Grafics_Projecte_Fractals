@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a81240b0a8d75e6409a19ef7937c1b8d, type: 3}
   m_Name: Raymarch epsilon
   m_EditorClassIdentifier: 
-  value: 0.0001
+  value: 0.01
   text: Raymarch Epsilon
   minValue: 0.0001
   maxValue: 0.01
