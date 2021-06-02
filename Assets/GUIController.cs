@@ -18,6 +18,7 @@ public class GUIController : MonoBehaviour
     public Text shadowsText;
     public Text lanternText;
     public Text phongText;
+    public FloatVariable fractalIterations;
     private bool active;
 
     private void Awake()
@@ -52,6 +53,13 @@ public class GUIController : MonoBehaviour
             }
             UpdateGui();
 
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            fractalIterations.SetValue(fractalIterations.IntValue - 1);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2)) {
+            fractalIterations.SetValue(fractalIterations.IntValue + 1);
         }
     }
 

@@ -265,7 +265,7 @@ Shader "PeerPlay/Raymarching"
 
 				float d = sdBox(p, float3(0.0,0.0,0.0), float3(1.0, 1.0, 1.0) * Scale);
 
-				float s = 1.0;
+				float s = 1; //Error en l'algoritme de la pàgina: cal dividr inicialment per l'escala, si no després no obtindrem una primera creu gran
 				float color = -1;
 				for (int m = 0; m<_fractalIterations; m++)
 				{
@@ -282,6 +282,37 @@ Shader "PeerPlay/Raymarching"
 					{
 						d = c;
 						//Color: iteracions / maxiteracions. Es calcularà el color en getColor
+						color = (1.0 + float(m)) / float(Iterations + 1);
+
+					}
+
+				}
+
+				return float4(d, color, -1, -1);
+			}
+
+			float4 mengerSpongeCommonDE(float3 p) { // Versió comuna amb un forat més gran al centre
+				int Iterations = _fractalIterations;
+				float Scale = _fractalScale;
+
+				float d = sdBox(p, float3(0.0, 0.0, 0.0), float3(1.0, 1.0, 1.0) * Scale);
+
+				float s = 1 / Scale; 
+				float color = -1;
+				for (int m = 0; m<_fractalIterations; m++)
+				{
+					float3 a = mod3(p*s, float3(2.0, 2.0, 2.0)) - 1.0;
+					s *= 3.0;
+					float3 r = abs(1.0 - 3.0*abs(a));
+
+					float da = max(r.x, r.y);
+					float db = max(r.y, r.z);
+					float dc = max(r.z, r.x);
+					float c = (min(da, min(db, dc)) - 1.0) / s;
+
+					if (c>d)
+					{
+						d = c;
 						color = (1.0 + float(m)) / float(Iterations + 1);
 
 					}
@@ -400,9 +431,15 @@ Shader "PeerPlay/Raymarching"
 				return boxes;
 			}
 
-			//Esferes amb "forats" a dins fets per capses
-			float scene1(float3 p) {
+			float infiniteBoxFramedSpheres(float3 p) {
 				p = repeatXYZ(p, float3(5.0, 5.0, 5.0));
+				float boxes = sdBoxFrame(p, float3(0.0, 0.0, 0.0), float3(2.5, 2.5, 2.5), 0.10);
+				float spheres = sdSphere(p, float3(0.0, 0.0, 0.0), 1.0);
+				return unionSDF(boxes, spheres);
+			}
+
+			//Esfera amb "forats" a dins fets per capses
+			float scene0(float3 p) {
 				float boxes1 = sdBox(p, float3(0.0, 0.0, 0.0), float3(1.0, 1.0, 2.52));
 				float boxes2 = sdBox(p, float3(0.0, 0.0, 0.0), float3(2.52, 1.0, 1.0));
 				float spheres = sdSphere(p, float3(0.0, 0.0, 0.0), 2.5);
@@ -410,17 +447,6 @@ Shader "PeerPlay/Raymarching"
 				return differenceSDF(diff, boxes2);
 			}
 
-			//Fractal Tetrahedre plegant l'espai
-			float scene2(float3 p) {
-				p = repeatXYZ(p, float3(4.0, 4.0, 4.0));
-				return tetrahedronFractalDE_mod1(p);
-			}
-
-			float scene3(float3 p) {
-				p = repeatXYZ(p, float3(4.0, 4.0, 4.0));
-				p = repeatXZ(p, float2(2.0, 2.0));
-				return sdSphere(p, float3(0.0, 0.0, 0.0), 1.4);
-			}
 
 			//
 
@@ -428,35 +454,41 @@ Shader "PeerPlay/Raymarching"
 			float4 distanceField(float3 p) {
 				float4 scene = float4(0.0, -1.0, -1.0, -1.0);
 				switch (_currentScene) {
+				case 0:
+					scene.x = scene0(p);
+					break;
 				case 1:
-					scene.x = sdCross(p/2, float3(0.0, 0.0, 0.0), 1.0) *2 ;
+					scene.x = sdCross(p / 2, float3(0.0, 0.0, 0.0), 1.0) * 2;
 					break;
 				case 2:
-					scene.x = sdBoxFrame(p, float3(0.0, 0.0, 0.0), float3(2.5, 2.5, 2.5), 0.10);
+					scene.x = mandelbulbDE(p / _fractalScale) * _fractalScale;
 					break;
 				case 3:
-					scene.x = infiniteBoxFrames(p);
+					scene.x = infiniteSpheres(p);
 					break;
 				case 4:
-					scene = tetrahedronFractalDE(p);
+					scene = infiniteBoxFramedSpheres(p);
 					break;
 				case 5:
-					scene.x = scene3(p);
-					break;
-				case 6:
-					scene.x = scene1(p);
-					break;
-				case 7:
 					scene = mengerSpongeDE(p);
 					break;
-				case 8:
-					scene = mandelbulbDE(p / _fractalScale) * _fractalScale;
+				case 6:
+					scene = mengerSpongeCommonDE(p);
 					break;
-				case 9:
+				case 7:
+					scene = tetrahedronFractalDE(p);
+					break;
+				case 8:
 					scene = mandelboxDE(p);
 					break;
+				case 9:
+					scene = mandelboxDE2(p / 20.0) * 20.0;
+					break;
 				case 10:
-					scene = mandelboxDE2(p / 10.0) * 10.0;
+					scene = tetrahedronFractalDE(p);
+					break;
+				case 11:
+					scene = mandelbulbDE(p / _fractalScale) * _fractalScale;
 					break;
 				default:
 					scene = mandelboxDE(p);
@@ -526,33 +558,28 @@ Shader "PeerPlay/Raymarching"
 
 				float3 normal = getNormal(p);
 				fixed4 color;
-				if (_currentScene == 3 ){ //Escena 3 de boxes
+				if (_currentScene == 4 ){ //Escena de boxFrames amb esferes
 					if (abs(p.x - 2.5) < 2.5 && abs(p.y - 2.5) < 2.5 && abs(p.z - 2.5) < 2.5){
 						color = fixed4(1, 0, 0, 1);
 					}
 					else {
-						color = fixed4(mod3(p, float3(5.0,5.0,5.0)) / 5.0, 1);
+						if (abs(mod(p.x, 5.0)-2.5) > 2.4) { //les capses
+							color = fixed4(mod3(p, float3(5.0, 5.0, 5.0)) / 5.0, 1);
+						} 
+						else{//esferes
+							color = fixed4(ray_direction, 1);
+						}
+						
 					}
 					
 				}
-				else if (_currentScene == 4) {//Tetrahedron
-					color = fixed4(DEColor.x, DEColor.y, DEColor.z, 1);
-				}
-				else if (_currentScene == 7) {//MengerSponge
+				else if (_currentScene == 5 || _currentScene == 6) {//MengerSponge
 					color = fixed4(DEColor.x, 0, 1 - DEColor.x, 1);
 				}
-				else if (_currentScene == 8) {//MandelBulb
-					float index = DEColor.x;
-					float n = 2.0;
-					color = fixed4(n/(index + n - 1 ), 2*n/(index + 2*n - 1 ), 3*n/(index + 3*n - 1 ), 1);
-					//color.xyz *= normalize(p + normal).xyz;
-					
-					//color = fixed4(sqrt(n/(DEColor.x + n - 1 )), 1.0 - sqrt(n/(DEColor.x + n - 1 )), n*3/(DEColor.x + n*3 - 1 ), 1);
-				}
-				else if (_currentScene == 9) {//Mandelbox
+				else if (_currentScene == 8) {//Mandelbox
 					color = fixed4(DEColor.x, 0, 1 - DEColor.x, 1);
 				}
-				else if (_currentScene == 10) {//Mandelbox segona implementació
+				else if (_currentScene == 9) {//Mandelbox segona implementació
 					float ca = 1.0 - float(iters) / float(_numIterations);
 					float3 c = float3(ca, ca, ca);
 					float orbit = DEColor.x;
@@ -560,6 +587,18 @@ Shader "PeerPlay/Raymarching"
 					float ct2 = abs(frac(orbit*.071) - 0.5)*2.0;
 					c *= lerp(fixed3(0.8, 0.7, 0.4)*ct, fixed3(0.7, 0.15, 0.2)*ct, ct2);
 					color = fixed4(c, 1);
+				}
+
+				else if (_currentScene == 10) {//Sierp. Tetrahedron millora color
+					color = fixed4(DEColor.x, DEColor.y, DEColor.z, 1);
+				}
+				else if (_currentScene == 11) {//MandelBulb millora color
+					float index = DEColor.x;
+					float n = 2.0;
+					color = fixed4(n / (index + n - 1), 2 * n / (index + 2 * n - 1), 3 * n / (index + 3 * n - 1), 1);
+					//color.xyz *= normalize(p + normal).xyz;
+
+					//color = fixed4(sqrt(n/(DEColor.x + n - 1 )), 1.0 - sqrt(n/(DEColor.x + n - 1 )), n*3/(DEColor.x + n*3 - 1 ), 1);
 				}
 				else {
 					color = fixed4(ray_direction, 1);

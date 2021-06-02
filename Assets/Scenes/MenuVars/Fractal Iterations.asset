@@ -15,5 +15,5 @@ MonoBehaviour:
   value: 7
   text: Fractal Iterations
   minValue: 1
-  maxValue: 300
+  maxValue: 30
   isInt: 1

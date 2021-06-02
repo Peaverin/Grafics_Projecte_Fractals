@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a81240b0a8d75e6409a19ef7937c1b8d, type: 3}
   m_Name: Fixed Radius
   m_EditorClassIdentifier: 
-  value: 0.5
+  value: 5.0752244
   text: MB Fixed Radius
-  minValue: 0.5
+  minValue: 0.1
   maxValue: 10
   isInt: 0

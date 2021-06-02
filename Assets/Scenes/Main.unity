@@ -1829,8 +1829,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 78.635, y: 0.0000076293945}
-  m_SizeDelta: {x: -657.269, y: 0}
+  m_AnchoredPosition: {x: 78.634735, y: 0}
+  m_SizeDelta: {x: -657.2695, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1230222349
 MonoBehaviour:
@@ -2859,6 +2859,7 @@ MonoBehaviour:
   shadowsText: {fileID: 258569715}
   lanternText: {fileID: 599827186}
   phongText: {fileID: 673504216}
+  fractalIterations: {fileID: 11400000, guid: a98b3a804975c5c46973d305cbefefb5, type: 2}
 --- !u!4 &1920673351
 Transform:
   m_ObjectHideFlags: 0
