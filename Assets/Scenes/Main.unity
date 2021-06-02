@@ -1844,7 +1844,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8169af304d97bf4b93c65994e9a3fa2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scenesAmount: 15
+  scenesAmount: 12
   sceneBtnPrefab: {fileID: 2656184364494088324, guid: b00d30126f85bdc429b366c4d31e5343, type: 3}
 --- !u!1 &1288083243
 GameObject:
