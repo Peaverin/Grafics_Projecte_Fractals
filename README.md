@@ -52,10 +52,10 @@ A continuació, links a tots els recursos utilitzats/consultats durant l'elabora
 
     http://www.fractalforums.com/programming/performance-for-fps-style-mandelbox-exploration/
 
-## Recursos a consultar:
+- Soft shadow + penumbra for free: 
 
-Pintar fractal amb orbit trap https://iquilezles.org/www/articles/mandelbulb/mandelbulb.htm
+  https://iquilezles.org/www/articles/rmshadows/rmshadows.htm
 
-Soft shadow + penumbra for free: https://iquilezles.org/www/articles/rmshadows/rmshadows.htm
-
-Menger sponge mod: http://www.fractalforums.com/sierpinski-gasket/kaleidoscopic-(escape-time-ifs)/?PHPSESSID=9b317826e4239ac1c44dc238a12188eb
+- Pintar fractal amb orbit trap 
+  
+  https://iquilezles.org/www/articles/mandelbulb/mandelbulb.htm
